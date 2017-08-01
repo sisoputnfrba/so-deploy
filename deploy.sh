@@ -70,9 +70,11 @@ echo -e "\n\nInstalling commons libraries...\n\n"
 COMMONS="so-commons-library"
 git clone "https://github.com/sisoputnfrba/${COMMONS}.git" $COMMONS
 cd $COMMONS
-make uninstall
-make install
+sudo make uninstall
+make all
+sudo make install
 cd $CWD
+
 
 for i in $OPTIONS
 do
@@ -91,33 +93,38 @@ do
     esac
 done
 
+
 echo -e "\n\nCloning external libraries\n\n"
 
 
-for i in $LIBRARIES
+for i in "${LIBRARIES[@]}"
 do
   git clone "https://github.com/${i}.git" $i
   make
   cd $CWD
 done
 
-git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
+git clone "https://github.com/fedebonisconti/${REPONAME}.git"
 cd $REPONAME
+PROJECTROOT=$PWD
 
 echo -e "\n\nBuilding dependencies\n\n"
 
-for i in $DEPENDENCIES
+for i in "${DEPENDENCIES[@]}"
 do
+  echo -e "Building ${i}"
   cd $i
   make install
+  cd $PROJECTROOT 
 done
 
 echo -e "\n\nBuilding proyects...\n\n"
 
-for i in $PROYECTS
+for i in "${PROYECTS[@]}"
 do
   cd $i
   make
+  cd $PROJECTROOT
 done
 
 echo -e "\n\nDeploy done!\n\n"
