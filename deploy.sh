@@ -12,7 +12,7 @@ ${bold}NAME${normal}
     ${bold}deploy.sh${normal} - script to deploy sisoputnfrba's TP.
 
 ${bold}SYNOPSIS${normal}
-    ${bold}deploy.sh${normal} [${bold}--lib${normal}=${underline}library${nounderline}] [${bold}--dependency${normal}=${underline}dependency${nounderline}] [${bold}--proyect${normal}=${underline}proyect${nounderline}] ${underline}repository${nounderline}
+    ${bold}deploy.sh${normal} [${bold}--lib${normal}=${underline}library${nounderline}] [${bold}--dependency${normal}=${underline}dependency${nounderline}] [${bold}--project${normal}=${underline}project${nounderline}] ${underline}repository${nounderline}
 
 ${bold}DESCRIPTION${normal}
     The ${bold}deploy.sh${normal} utility is to ease the deploy process.
@@ -25,11 +25,11 @@ ${bold}DESCRIPTION${normal}
 
     ${bold}-d | --dependency${normal}   Adds an internal dependency to build and install from the repository.
 
-    ${bold}-p | --proyect${normal}      Adds a proyect to build from the repository.
+    ${bold}-p | --project${normal}      Adds a project to build from the repository.
 
 
 ${bold}COMPATIBILITY${normal}
-    The proyect must have the following scructure:
+    The project must have the following scructure:
       project1/
        ╰─ makefile
       project2/
@@ -85,7 +85,7 @@ do
         -d=*|--dependency=*)
           DEPENDENCIES+=("${i#*=}")
         ;;
-        -p=*|--proyect=*)
+        -p=*|--project=*)
           PROYECTS+=("${i#*=}")
         ;;
         *)
@@ -104,7 +104,7 @@ do
   cd $CWD
 done
 
-git clone "https://github.com/fedebonisconti/${REPONAME}.git"
+git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
 cd $REPONAME
 PROJECTROOT=$PWD
 
@@ -118,7 +118,7 @@ do
   cd $PROJECTROOT 
 done
 
-echo -e "\n\nBuilding proyects...\n\n"
+echo -e "\n\nBuilding projects...\n\n"
 
 for i in "${PROYECTS[@]}"
 do
