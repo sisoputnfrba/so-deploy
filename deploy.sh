@@ -30,9 +30,9 @@ ${bold}DESCRIPTION${normal}
 
 ${bold}COMPATIBILITY${normal}
     The proyect must have the following scructure:
-      project1
+      project1/
        ╰─ makefile
-      project2
+      project2/
        ╰─ makefile
       sharedlibrary/
        ╰─ makefile

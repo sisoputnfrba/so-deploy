@@ -21,13 +21,11 @@ Para ver informacion de como usarlo, ejecutar con la opcion -h (help) `./deploy.
 so-deploy requiere que los proyectos y dependencias tengan un makefile encargado de compilar correctamente a cada uno.
 
 La estructura debe ser la siguiente:
-  Proyecto
-  ╰─ makefile
-  .
-  .
-  .
-  Dependencia
-  ╰─ makefile
+  
+* Proyecto  
+  + makefile  
+* Dependencia  
+  + makefile
 
 ## Contacto
 
