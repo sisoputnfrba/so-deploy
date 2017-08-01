@@ -97,7 +97,7 @@ done
 echo -e "\n\nCloning external libraries\n\n"
 
 
-for i in $LIBRARIES
+for i in "${LIBRARIES[@]}"
 do
   git clone "https://github.com/${i}.git" $i
   make
