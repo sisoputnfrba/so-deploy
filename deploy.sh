@@ -68,9 +68,10 @@ esac
 
 echo -e "\n\nInstalling commons libraries...\n\n"
 
+COMMONS="so-commons-library"
 
 cd $CWD
-COMMONS="so-commons-library"
+rm -rf $COMMONS
 git clone "https://github.com/sisoputnfrba/${COMMONS}.git" $COMMONS
 cd $COMMONS
 sudo make uninstall
@@ -109,13 +110,15 @@ echo -e "\n\nCloning external libraries...\n\n"
 for i in "${LIBRARIES[@]}"
 do
   cd $CWD
+  rm -rf $i
   git clone "https://github.com/${i}.git" $i
   cd $i
   make install
 done
 
 cd $CWD
-git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
+rm -rf $REPONAME
+git clone "https://github.com/sisoputnfrba/${REPONAME}.git" $REPONAME
 cd $REPONAME
 PROJECTROOT=$PWD
 
