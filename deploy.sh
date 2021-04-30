@@ -21,6 +21,8 @@ ${bold}DESCRIPTION${normal}
 
     ${bold}-t | --target${normal}       Changes the directory where the script is executed. By default it will be the current directory.
 
+    ${bold}-m | --make${normal}         Changes the makefile rule for building projects. By default it will be empty.
+
     ${bold}-l | --lib${normal}          Adds an external dependency to build and install.
 
     ${bold}-d | --dependency${normal}   Adds an internal dependency to build and install from the repository.
@@ -54,6 +56,15 @@ case $1 in
   ;;
 esac
 
+RULE=""
+case $1 in
+  -m=*|--make=*)
+    RULE="${1#*=}"
+    shift
+  ;;
+  *)
+  ;;
+esac
 
 echo -e "\n\nInstalling commons libraries...\n\n"
 
@@ -123,7 +134,7 @@ echo -e "\n\nBuilding projects...\n\n"
 for i in "${PROJECTS[@]}"
 do
   cd $i
-  make
+  make $RULE
   cd $PROJECTROOT
 done
 
