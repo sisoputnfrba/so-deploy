@@ -44,37 +44,35 @@ ${bold}EXAMPLE${normal}
   exit
 fi
 
-
-length=$(($#-1))
-OPTIONS=${@:1:$length}
-REPONAME="${!#}"
 CWD=$PWD
+case $1 in
+  -t=*|--target=*)
+    CWD="$CWD/${1#*=}"
+    shift
+  ;;
+  *)
+  ;;
+esac
 
-for i in "${@:2}"
-do
-  case $i in
-    -t=*|--target=*)
-      CWD="${i#*=}"
-    ;;
-    *)
-    ;;
-  esac
-done
-
-LIBRARIES=()
-DEPENDENCIES=()
-PROYECTS=()
 
 echo -e "\n\nInstalling commons libraries...\n\n"
 
+
+cd $CWD
 COMMONS="so-commons-library"
 git clone "https://github.com/sisoputnfrba/${COMMONS}.git" $COMMONS
 cd $COMMONS
 sudo make uninstall
 make all
 sudo make install
-cd $CWD
 
+length=$(($#-1))
+OPTIONS=${@:1:length}
+REPONAME="${!#}"
+
+LIBRARIES=()
+DEPENDENCIES=()
+PROJECTS=()
 
 for i in $OPTIONS
 do
@@ -86,7 +84,7 @@ do
           DEPENDENCIES+=("${i#*=}")
         ;;
         -p=*|--project=*)
-          PROYECTS+=("${i#*=}")
+          PROJECTS+=("${i#*=}")
         ;;
         *)
         ;;
@@ -94,21 +92,23 @@ do
 done
 
 
-echo -e "\n\nCloning external libraries\n\n"
+echo -e "\n\nCloning external libraries...\n\n"
 
 
 for i in "${LIBRARIES[@]}"
 do
-  git clone "https://github.com/${i}.git" $i
-  make
   cd $CWD
+  git clone "https://github.com/${i}.git" $i
+  cd $i
+  make install
 done
 
+cd $CWD
 git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
 cd $REPONAME
 PROJECTROOT=$PWD
 
-echo -e "\n\nBuilding dependencies\n\n"
+echo -e "\n\nBuilding dependencies...\n\n"
 
 for i in "${DEPENDENCIES[@]}"
 do
@@ -120,7 +120,7 @@ done
 
 echo -e "\n\nBuilding projects...\n\n"
 
-for i in "${PROYECTS[@]}"
+for i in "${PROJECTS[@]}"
 do
   cd $i
   make
