@@ -21,6 +21,8 @@ ${bold}DESCRIPTION${normal}
 
     ${bold}-t | --target${normal}       Changes the directory where the script is executed. By default it will be the current directory.
 
+    ${bold}-m | --make${normal}         Changes the makefile rule for building projects. By default it will be empty.
+
     ${bold}-l | --lib${normal}          Adds an external dependency to build and install.
 
     ${bold}-d | --dependency${normal}   Adds an internal dependency to build and install from the repository.
@@ -44,37 +46,45 @@ ${bold}EXAMPLE${normal}
   exit
 fi
 
-
-length=$(($#-1))
-OPTIONS=${@:1:$length}
-REPONAME="${!#}"
 CWD=$PWD
+case $1 in
+  -t=*|--target=*)
+    CWD="$CWD/${1#*=}"
+    shift
+  ;;
+  *)
+  ;;
+esac
 
-for i in "${@:2}"
-do
-  case $i in
-    -t=*|--target=*)
-      CWD="${i#*=}"
-    ;;
-    *)
-    ;;
-  esac
-done
-
-LIBRARIES=()
-DEPENDENCIES=()
-PROYECTS=()
+RULE=""
+case $1 in
+  -m=*|--make=*)
+    RULE="${1#*=}"
+    shift
+  ;;
+  *)
+  ;;
+esac
 
 echo -e "\n\nInstalling commons libraries...\n\n"
 
 COMMONS="so-commons-library"
+
+cd $CWD
+rm -rf $COMMONS
 git clone "https://github.com/sisoputnfrba/${COMMONS}.git" $COMMONS
 cd $COMMONS
 sudo make uninstall
 make all
 sudo make install
-cd $CWD
 
+length=$(($#-1))
+OPTIONS=${@:1:length}
+REPONAME="${!#}"
+
+LIBRARIES=()
+DEPENDENCIES=()
+PROJECTS=()
 
 for i in $OPTIONS
 do
@@ -86,7 +96,7 @@ do
           DEPENDENCIES+=("${i#*=}")
         ;;
         -p=*|--project=*)
-          PROYECTS+=("${i#*=}")
+          PROJECTS+=("${i#*=}")
         ;;
         *)
         ;;
@@ -94,21 +104,25 @@ do
 done
 
 
-echo -e "\n\nCloning external libraries\n\n"
+echo -e "\n\nCloning external libraries...\n\n"
 
 
 for i in "${LIBRARIES[@]}"
 do
-  git clone "https://github.com/${i}.git" $i
-  make
   cd $CWD
+  rm -rf $i
+  git clone "https://github.com/${i}.git" $i
+  cd $i
+  make install
 done
 
-git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
+cd $CWD
+rm -rf $REPONAME
+git clone "https://github.com/sisoputnfrba/${REPONAME}.git" $REPONAME
 cd $REPONAME
 PROJECTROOT=$PWD
 
-echo -e "\n\nBuilding dependencies\n\n"
+echo -e "\n\nBuilding dependencies...\n\n"
 
 for i in "${DEPENDENCIES[@]}"
 do
@@ -120,10 +134,10 @@ done
 
 echo -e "\n\nBuilding projects...\n\n"
 
-for i in "${PROYECTS[@]}"
+for i in "${PROJECTS[@]}"
 do
   cd $i
-  make
+  make $RULE
   cd $PROJECTROOT
 done
 
