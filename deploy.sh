@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd() { command cd "$@" && printf 'Changing directory: %s -> %s\n' "${OLDPWD}" "${PWD}"; }
+
 bold=$(tput bold)
 normal=$(tput sgr0)
 underline=`tput smul`
@@ -49,12 +51,16 @@ fi
 CWD=$PWD
 case $1 in
   -t=*|--target=*)
-    CWD="$CWD/${1#*=}"
+    case ${1#*=} in
+      /*) CWD="${1#*=}" ;;
+      *) CWD+="/${1#*=}" ;;
+    esac
     shift
   ;;
   *)
   ;;
 esac
+cd $CWD
 
 RULE=""
 case $1 in
@@ -70,13 +76,13 @@ echo -e "\n\nInstalling commons libraries...\n\n"
 
 COMMONS="so-commons-library"
 
-cd $CWD
 rm -rf $COMMONS
 git clone "https://github.com/sisoputnfrba/${COMMONS}.git" $COMMONS
 cd $COMMONS
 sudo make uninstall
 make all
 sudo make install
+cd $CWD
 
 length=$(($#-1))
 OPTIONS=${@:1:length}
@@ -104,38 +110,41 @@ do
 done
 
 
-echo -e "\n\nCloning external libraries...\n\n"
+echo -e "\n\nCloning external libraries..."
 
 
 for i in "${LIBRARIES[@]}"
 do
-  cd $CWD
+  echo -e "\n\nBuilding ${i}\n\n"
   rm -rf $i
   git clone "https://github.com/${i}.git" $i
   cd $i
   make install
+  cd $CWD
 done
 
-cd $CWD
+echo -e "\n\nCloning project repo...\n\n"
+
 rm -rf $REPONAME
 git clone "https://github.com/sisoputnfrba/${REPONAME}.git" $REPONAME
 cd $REPONAME
 PROJECTROOT=$PWD
 
-echo -e "\n\nBuilding dependencies...\n\n"
+echo -e "\n\nBuilding dependencies..."
 
 for i in "${DEPENDENCIES[@]}"
 do
-  echo -e "Building ${i}"
+  echo -e "\n\nBuilding ${i}\n\n"
   cd $i
   make install
   cd $PROJECTROOT 
 done
 
-echo -e "\n\nBuilding projects...\n\n"
+echo -e "\n\nBuilding projects..."
 
 for i in "${PROJECTS[@]}"
 do
+  echo -e "\n\nBuilding ${i}\n\n"
   cd $i
   make $RULE
   cd $PROJECTROOT
