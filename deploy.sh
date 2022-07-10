@@ -73,14 +73,6 @@ case $1 in
   ;;
 esac
 
-echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
-
-COMMONS="sisoputnfrba/so-commons-library"
-
-rm -rf "$COMMONS"
-git clone "https://github.com/${COMMONS}.git" "$COMMONS"
-make -C "$COMMONS" uninstall install
-
 length=$(($#-1))
 OPTIONS=("${@:1:length}")
 REPONAME="sisoputnfrba/${!#}"
@@ -102,9 +94,19 @@ do
           PROJECTS+=("${i#*=}")
         ;;
         *)
+          echo -e "${bold}Invalid option:${normal} ${i}" >&2
+          echo "Try ${bold}./deploy.sh --help${normal} or ${bold}./deploy.sh -h${normal} for more information" >&2
+          exit
         ;;
     esac
 done
+
+echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
+
+COMMONS="sisoputnfrba/so-commons-library"
+rm -rf "$COMMONS"
+git clone "https://github.com/${COMMONS}.git" "$COMMONS"
+make -C "$COMMONS" uninstall install
 
 echo -e "\n\n${bold}Cloning external libraries...${normal}"
 
