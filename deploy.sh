@@ -14,12 +14,12 @@ ${bold}NAME${normal}
     ${bold}deploy.sh${normal} - script to deploy sisoputnfrba's TP.
 
 ${bold}SYNOPSIS${normal}
-    ${bold}deploy.sh${normal} [${bold}--lib${normal}=${underline}library${nounderline}] [${bold}--dependency${normal}=${underline}dependency${nounderline}] [${bold}--project${normal}=${underline}project${nounderline}] ${underline}repository${nounderline}
+    ${bold}deploy.sh${normal} [ ${bold}-t${normal}=${underline}target${nounderline} ] [ ${bold}-s${normal}=${underline}structure${nounderline} ] [ ${bold}-r${normal}=${underline}rule${nounderline} ] [ option=${underline}value${nounderline}... ] ${underline}repository${nounderline}
 
 ${bold}DESCRIPTION${normal}
     The ${bold}deploy.sh${normal} utility is to ease the deploy process.
 
-    The options are as follows:
+${bold}OPTIONS${normal}
 
     ${bold}-t | --target${normal}       Changes the directory where the script is executed. By default it will be the current directory.
 
@@ -34,10 +34,10 @@ ${bold}DESCRIPTION${normal}
     ${bold}-p | --project${normal}      Adds a project to build from the repository.
 
 ${bold}COMPATIBILITY${normal}
-    The repository must have makefiles to compile each project or dependency.
+    The repository must be in ${bold}sisoputnfrba${normal} organization and have makefiles to compile each project or dependency.
 
 ${bold}EXAMPLE${normal}
-      ${bold}deploy.sh${normal} ${bold}-s${normal}=Release ${bold}-l${normal}=sisoputnfrba/so-nivel-gui-library ${bold}-d${normal}=sockets ${bold}-p${normal}=consola ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-20XX-XC-example${nounderline}
+      ${bold}./deploy.sh${normal} ${bold}-t${normal}=/home/utnso ${bold}-s${normal}=Debug ${bold}-r${normal}=all ${bold}-l${normal}=sisoputnfrba/ansisop-parser ${bold}-d${normal}=sockets ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2017-1C-example${nounderline}
 
   " | less
   exit

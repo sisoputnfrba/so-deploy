@@ -9,7 +9,7 @@ Al ejecutar el script sobre el nombre de un repositorio, se pueden pasar los sig
 * -s | --structure: Cambia la ruta donde el script debe buscar los makefiles para cada proyecto o dependencia. Por defecto va a ser el directorio en donde reside cada uno.
 * -r | --rule: Cambia la regla del makefile para compilar los proyectos. El valor por defecto es `all`.
 * -l | --lib: Agrega una dependencia externa para compilar e instalar. (Se especifica user y nombre del repositorio en github, ej: `sisoputnfrba/so-nivel-gui-library`)
-* -d | --dependency: Agrega una dependencia interna del proyecto para compilar e instalar. (Forman parte del repositorio a deployar y se especifica una ruta dentro del repositorio a donde reside la dependencia).
+* -d | --dependency: Agrega una dependencia interna del proyecto para compilar e instalar con `make install`. (Forman parte del repositorio a deployar y se especifica una ruta dentro del repositorio a donde reside la dependencia).
 * -p | --project: Agrega un proyecto a compilar del repositorio. (Al igual que las dependencias se puede pasar una ruta a los proyectos)
 
 Para ver informacion de como usarlo, ejecutar con la opcion -h (help) `./deploy.sh -h`
@@ -17,7 +17,7 @@ Para ver informacion de como usarlo, ejecutar con la opcion -h (help) `./deploy.
 ### Ejemplo
 
 ```
-./deploy.sh -l=sisoputnfrba/so-nivel-gui-library -d=sockets -p=consola -p=kernel -p=memoria tp-20XX-XC-ejemplo
+./deploy.sh -l=sisoputnfrba/ansisop-parser -d=sockets -p=kernel -p=memoria tp-2017-1C-ejemplo
 ```
 
 ### Requerimientos
