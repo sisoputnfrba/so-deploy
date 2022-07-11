@@ -7,6 +7,11 @@ normal=$(tput sgr0)
 underline=$(tput smul)
 nounderline=$(tput rmul)
 
+fail() {
+  echo -e "\n\nTry ${bold}'./deploy.sh --help'${normal} or ${bold}'./deploy.sh -h'${normal} for more information" >&2
+  exit
+}
+
 if [[ "$*" =~ (-h|-H|--help) ]]; then
   echo "
 
@@ -45,8 +50,8 @@ fi
 
 case $1 in
   -t=*|--target=*)
-    echo -e "\n\n${bold}Changing directory:${normal} ${PWD} -> ${bold}${1#*=}${normal}\n\n"
-    cd "${1#*=}" || exit
+    echo -e "\n\n${bold}Changing directory:${normal} ${PWD} -> ${bold}${1#*=}${normal}"
+    cd "${1#*=}" || fail
     shift
   ;;
   *)
@@ -73,40 +78,49 @@ case $1 in
   ;;
 esac
 
-length=$(($#-1))
-OPTIONS=("${@:1:length}")
-REPONAME="${!#}"
+if [[ $# -lt 1 ]]; then
+  echo -e "\n\n${bold}No repository specified!${normal}" >&2
+  fail
+fi
 
 LIBRARIES=()
 DEPENDENCIES=()
 PROJECTS=()
 
+OPTIONS=("${@:1:$#-1}")
 for i in "${OPTIONS[@]}"
 do
     case $i in
         -l=*|--lib=*)
           LIBRARIES+=("${i#*=}")
+          shift
         ;;
         -d=*|--dependency=*)
           DEPENDENCIES+=("${i#*=}")
+          shift
         ;;
         -p=*|--project=*)
           PROJECTS+=("${i#*=}")
+          shift
         ;;
         *)
-          echo -e "${bold}Invalid option:${normal} ${i}" >&2
-          echo "Try ${bold}./deploy.sh --help${normal} or ${bold}./deploy.sh -h${normal} for more information" >&2
-          exit
+          echo -e "\n\n${bold}Invalid option:${normal} ${i}" >&2
+          fail
         ;;
     esac
 done
 
+REPONAME="$1"
+if [[ $REPONAME != "tp"* ]]; then
+  echo -e "\n\n${bold}Invalid repository${normal}: $REPONAME" >&2
+  fail
+fi
+
 echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
 
-COMMONS="sisoputnfrba/so-commons-library"
-rm -rf "${COMMONS#*\/}"
-git clone "https://github.com/${COMMONS}.git"
-make -C "${COMMONS#*\/}" uninstall install
+rm -rf "so-commons-library"
+git clone "https://github.com/sisoputnfrba/so-commons-library.git"
+make -C "so-commons-library" uninstall install
 
 echo -e "\n\n${bold}Cloning external libraries...${normal}"
 
