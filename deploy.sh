@@ -25,7 +25,6 @@ ${bold}DESCRIPTION${normal}
     The ${bold}deploy.sh${normal} utility is to ease the deploy process.
 
 ${bold}OPTIONS${normal}
-
     ${bold}-t | --target${normal}       Changes the directory where the script is executed. By default it will be the current directory.
 
     ${bold}-s | --structure${normal}    Changes the path where the script should look for makefiles. By default it will be the current directory of each project.
@@ -42,7 +41,7 @@ ${bold}COMPATIBILITY${normal}
     The repository must be in ${bold}sisoputnfrba${normal} organization and have makefiles to compile each project or dependency.
 
 ${bold}EXAMPLE${normal}
-      ${bold}./deploy.sh${normal} ${bold}-t${normal}=/home/utnso ${bold}-s${normal}=Debug ${bold}-r${normal}=all ${bold}-l${normal}=sisoputnfrba/ansisop-parser ${bold}-d${normal}=sockets ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2017-1C-example${nounderline}
+      ${bold}./deploy.sh${normal} ${bold}-l${normal}=mumuki/cspec ${bold}-d${normal}=sockets ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2022-1c-example${nounderline}
 
   " | less
   exit
