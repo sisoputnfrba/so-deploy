@@ -48,10 +48,13 @@ ${bold}EXAMPLE${normal}
   exit
 fi
 
+TARGET=""
 case $1 in
   -t=*|--target=*)
-    echo -e "\n\n${bold}Changing directory:${normal} ${PWD} -> ${bold}${1#*=}${normal}"
-    cd "${1#*=}" || fail
+    case ${1#*=} in
+      /*) TARGET="${1#*=}" ;;
+      *) TARGET="$PWD/${1#*=}" ;;
+    esac
     shift
   ;;
   *)
@@ -114,6 +117,11 @@ REPONAME="$1"
 if [[ $REPONAME != "tp"* ]]; then
   echo -e "\n\n${bold}Invalid repository${normal}: $REPONAME" >&2
   fail
+fi
+
+if [[ $TARGET ]]; then
+  echo -e "\n\n${bold}Changing directory:${normal} ${PWD} -> ${bold}$TARGET${normal}"
+  cd "$TARGET" || exit
 fi
 
 echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
