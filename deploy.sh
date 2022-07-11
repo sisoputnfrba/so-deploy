@@ -75,7 +75,7 @@ esac
 
 length=$(($#-1))
 OPTIONS=("${@:1:length}")
-REPONAME="sisoputnfrba/${!#}"
+REPONAME="${!#}"
 
 LIBRARIES=()
 DEPENDENCIES=()
@@ -104,24 +104,24 @@ done
 echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
 
 COMMONS="sisoputnfrba/so-commons-library"
-rm -rf "$COMMONS"
-git clone "https://github.com/${COMMONS}.git" "$COMMONS"
-make -C "$COMMONS" uninstall install
+rm -rf "${COMMONS#*\/}"
+git clone "https://github.com/${COMMONS}.git"
+make -C "${COMMONS#*\/}" uninstall install
 
 echo -e "\n\n${bold}Cloning external libraries...${normal}"
 
 for i in "${LIBRARIES[@]}"
 do
   echo -e "\n\n${bold}Building ${i}${normal}\n\n"
-  rm -rf "$i"
-  git clone "https://github.com/${i}.git" "$i"
-  make -C "$i" install
+  rm -rf "${i#*\/}"
+  git clone "https://github.com/${i}.git"
+  make -C "${i#*\/}" install
 done
 
 echo -e "\n\n${bold}Cloning project repo...${normal}\n\n"
 
 rm -rf "$REPONAME"
-git clone "https://github.com/${REPONAME}.git" "$REPONAME"
+git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
 
 echo -e "\n\n${bold}Building dependencies${normal}..."
 
