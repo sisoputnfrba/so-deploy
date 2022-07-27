@@ -136,7 +136,8 @@ do
   echo -e "\n\n${bold}Building ${i}${normal}\n\n"
   rm -rf "${i#*\/}"
   git clone "https://github.com/${i}.git"
-  make -C "${i#*\/}" install
+  make -C "${i#*\/}"
+  sudo make -C "${i#*\/}" install
 done
 
 echo -e "\n\n${bold}Cloning project repo...${normal}\n\n"
@@ -149,7 +150,8 @@ echo -e "\n\n${bold}Building dependencies${normal}..."
 for i in "${DEPENDENCIES[@]}"
 do
   echo -e "\n\n${bold}Building ${i}${normal}\n\n"
-  make -C "$REPONAME/$i/$STRUCTURE" install
+  make -C "$REPONAME/$i/$STRUCTURE" "$RULE"
+  sudo make -C "$REPONAME/$i/$STRUCTURE" install
 done
 
 echo -e "\n\n${bold}Building projects...${normal}"
