@@ -1,29 +1,35 @@
 #!/bin/bash
 
-cd() { command cd "$@" && printf 'Changing directory: %s -> %s\n' "${OLDPWD}" "${PWD}"; }
+set -e
 
 bold=$(tput bold)
 normal=$(tput sgr0)
-underline=`tput smul`
-nounderline=`tput rmul`
+underline=$(tput smul)
+nounderline=$(tput rmul)
 
-if [[ "$@" =~ (-h|-H|--help) ]]; then
+fail() {
+  echo -e "\n\nTry ${bold}'./deploy.sh --help'${normal} or ${bold}'./deploy.sh -h'${normal} for more information" >&2
+  exit
+}
+
+if [[ "$*" =~ (-h|-H|--help) ]]; then
   echo "
 
 ${bold}NAME${normal}
     ${bold}deploy.sh${normal} - script to deploy sisoputnfrba's TP.
 
 ${bold}SYNOPSIS${normal}
-    ${bold}deploy.sh${normal} [${bold}--lib${normal}=${underline}library${nounderline}] [${bold}--dependency${normal}=${underline}dependency${nounderline}] [${bold}--project${normal}=${underline}project${nounderline}] ${underline}repository${nounderline}
+    ${bold}deploy.sh${normal} [ ${bold}-t${normal}=${underline}target${nounderline} ] [ ${bold}-s${normal}=${underline}structure${nounderline} ] [ ${bold}-r${normal}=${underline}rule${nounderline} ] [ option=${underline}value${nounderline}... ] ${underline}repository${nounderline}
 
 ${bold}DESCRIPTION${normal}
     The ${bold}deploy.sh${normal} utility is to ease the deploy process.
 
-    The options are as follows:
-
+${bold}OPTIONS${normal}
     ${bold}-t | --target${normal}       Changes the directory where the script is executed. By default it will be the current directory.
 
-    ${bold}-m | --make${normal}         Changes the makefile rule for building projects. By default it will be empty.
+    ${bold}-s | --structure${normal}    Changes the path where the script should look for makefiles. By default it will be the current directory of each project.
+
+    ${bold}-r | --rule${normal}         Changes the makefile rule for building projects. By default it will be 'all'.
 
     ${bold}-l | --lib${normal}          Adds an external dependency to build and install.
 
@@ -31,40 +37,42 @@ ${bold}DESCRIPTION${normal}
 
     ${bold}-p | --project${normal}      Adds a project to build from the repository.
 
-
 ${bold}COMPATIBILITY${normal}
-    The project must have the following scructure:
-      project1/
-       ╰─ makefile
-      project2/
-       ╰─ makefile
-      sharedlibrary/
-       ╰─ makefile
+    The repository must be in ${bold}sisoputnfrba${normal} organization and have makefiles to compile each project or dependency.
 
 ${bold}EXAMPLE${normal}
-      ${bold}deploy.sh${normal} ${bold}-l${normal}=sisoputnfrba/ansisop-parser ${bold}-d${normal}=sockets ${bold}-p${normal}=consola ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2017-1C-exampleRepo${nounderline}
+      ${bold}./deploy.sh${normal} ${bold}-l${normal}=mumuki/cspec ${bold}-d${normal}=sockets ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2022-1c-example${nounderline}
 
-  "
+  " | less
   exit
 fi
 
-CWD=$PWD
+TARGET=""
 case $1 in
   -t=*|--target=*)
     case ${1#*=} in
-      /*) CWD="${1#*=}" ;;
-      *) CWD+="/${1#*=}" ;;
+      /*) TARGET="${1#*=}" ;;
+      *) TARGET="$PWD/${1#*=}" ;;
     esac
     shift
   ;;
   *)
   ;;
 esac
-cd $CWD
 
-RULE=""
+STRUCTURE=""
 case $1 in
-  -m=*|--make=*)
+  -s=*|--structure=*)
+    STRUCTURE="${1#*=}"
+    shift
+  ;;
+  *)
+  ;;
+esac
+
+RULE="all"
+case $1 in
+  -r=*|--rule=*)
     RULE="${1#*=}"
     shift
   ;;
@@ -72,82 +80,86 @@ case $1 in
   ;;
 esac
 
-echo -e "\n\nInstalling commons libraries...\n\n"
-
-COMMONS="so-commons-library"
-
-rm -rf $COMMONS
-git clone "https://github.com/sisoputnfrba/${COMMONS}.git" $COMMONS
-cd $COMMONS
-sudo make uninstall
-make all
-sudo make install
-cd $CWD
-
-length=$(($#-1))
-OPTIONS=${@:1:length}
-REPONAME="${!#}"
+if [[ $# -lt 1 ]]; then
+  echo -e "\n\n${bold}No repository specified!${normal}" >&2
+  fail
+fi
 
 LIBRARIES=()
 DEPENDENCIES=()
 PROJECTS=()
 
-for i in $OPTIONS
+OPTIONS=("${@:1:$#-1}")
+for i in "${OPTIONS[@]}"
 do
     case $i in
         -l=*|--lib=*)
           LIBRARIES+=("${i#*=}")
+          shift
         ;;
         -d=*|--dependency=*)
           DEPENDENCIES+=("${i#*=}")
+          shift
         ;;
         -p=*|--project=*)
           PROJECTS+=("${i#*=}")
+          shift
         ;;
         *)
+          echo -e "\n\n${bold}Invalid option:${normal} ${i}" >&2
+          fail
         ;;
     esac
 done
 
+REPONAME="$1"
+if [[ $REPONAME != "tp"* ]]; then
+  echo -e "\n\n${bold}Invalid repository${normal}: $REPONAME" >&2
+  fail
+fi
 
-echo -e "\n\nCloning external libraries..."
+if [[ $TARGET ]]; then
+  echo -e "\n\n${bold}Changing directory:${normal} ${PWD} -> ${bold}$TARGET${normal}"
+  cd "$TARGET" || exit
+fi
 
+echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
+
+rm -rf "so-commons-library"
+git clone "https://github.com/sisoputnfrba/so-commons-library.git"
+make -C "so-commons-library" uninstall install
+
+echo -e "\n\n${bold}Cloning external libraries...${normal}"
 
 for i in "${LIBRARIES[@]}"
 do
-  echo -e "\n\nBuilding ${i}\n\n"
-  rm -rf $i
-  git clone "https://github.com/${i}.git" $i
-  cd $i
-  make install
-  cd $CWD
+  echo -e "\n\n${bold}Building ${i}${normal}\n\n"
+  rm -rf "${i#*\/}"
+  git clone "https://github.com/${i}.git"
+  make -C "${i#*\/}"
+  sudo make -C "${i#*\/}" install
 done
 
-echo -e "\n\nCloning project repo...\n\n"
+echo -e "\n\n${bold}Cloning project repo...${normal}\n\n"
 
-rm -rf $REPONAME
-git clone "https://github.com/sisoputnfrba/${REPONAME}.git" $REPONAME
-cd $REPONAME
-PROJECTROOT=$PWD
+rm -rf "$REPONAME"
+git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
 
-echo -e "\n\nBuilding dependencies..."
+echo -e "\n\n${bold}Building dependencies${normal}..."
 
 for i in "${DEPENDENCIES[@]}"
 do
-  echo -e "\n\nBuilding ${i}\n\n"
-  cd $i
-  make install
-  cd $PROJECTROOT 
+  echo -e "\n\n${bold}Building ${i}${normal}\n\n"
+  make -C "$REPONAME/$i/$STRUCTURE" "$RULE"
+  sudo make -C "$REPONAME/$i/$STRUCTURE" install
 done
 
-echo -e "\n\nBuilding projects..."
+echo -e "\n\n${bold}Building projects...${normal}"
 
 for i in "${PROJECTS[@]}"
 do
-  echo -e "\n\nBuilding ${i}\n\n"
-  cd $i
-  make $RULE
-  cd $PROJECTROOT
+  echo -e "\n\n${bold}Building ${i}${normal}\n\n"
+  make -C "$REPONAME/$i/$STRUCTURE" "$RULE"
 done
 
-echo -e "\n\nDeploy done!\n\n"
+echo -e "\n\n${bold}Deploy done!${normal}\n\n"
