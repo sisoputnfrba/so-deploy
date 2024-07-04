@@ -12,7 +12,7 @@ fail() {
   exit
 }
 
-if [[ "$*" =~ (-h|-H|--help) ]]; then
+if [[ "$*" =~ (^|\ )(-h|-H|--help)($|\ ) ]]; then
   echo "
 
 ${bold}NAME${normal}
@@ -43,7 +43,7 @@ ${bold}COMPATIBILITY${normal}
 ${bold}EXAMPLE${normal}
       ${bold}./deploy.sh${normal} ${bold}-l${normal}=mumuki/cspec ${bold}-d${normal}=sockets ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2022-1c-example${nounderline}
 
-  " | less
+  " | less -r
   exit
 fi
 
