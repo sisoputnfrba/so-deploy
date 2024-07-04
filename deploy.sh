@@ -12,7 +12,7 @@ fail() {
   exit
 }
 
-if [[ "$*" =~ (-h|-H|--help) ]]; then
+if [[ "$*" =~ (^|\ )(-h|-H|--help)($|\ ) ]]; then
   echo "
 
 ${bold}NAME${normal}
