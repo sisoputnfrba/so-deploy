@@ -24,24 +24,27 @@ ${bold}SYNOPSIS${normal}
 ${bold}DESCRIPTION${normal}
     The ${bold}deploy.sh${normal} utility is to ease the deploy process.
 
-${bold}OPTIONS${normal}
+${bold}POSITIONAL ARGUMENTS${normal}
     ${bold}-t | --target${normal}       Changes the directory where the script is executed. By default it will be the current directory.
 
     ${bold}-s | --structure${normal}    Changes the path where the script should look for makefiles. By default it will be the current directory of each project.
 
     ${bold}-r | --rule${normal}         Changes the makefile rule for building projects. By default it will be 'all'.
 
+${bold}OPTIONS${normal}
     ${bold}-l | --lib${normal}          Adds an external dependency to build and install.
 
     ${bold}-d | --dependency${normal}   Adds an internal dependency to build and install from the repository.
 
     ${bold}-p | --project${normal}      Adds a project to build from the repository.
 
+    ${bold}-c | --config${normal}       Replaces a variable in all configuration files containing it. The format is 'key=value'.
+
 ${bold}COMPATIBILITY${normal}
     The repository must be in ${bold}sisoputnfrba${normal} organization and have makefiles to compile each project or dependency.
 
 ${bold}EXAMPLE${normal}
-      ${bold}./deploy.sh${normal} ${bold}-l${normal}=mumuki/cspec ${bold}-d${normal}=sockets ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2022-1c-example${nounderline}
+      ${bold}./deploy.sh${normal} ${bold}-l${normal}=mumuki/cspec ${bold}-d${normal}=sockets ${bold}-p${normal}=server ${bold}-p${normal}=client -c=IP_SERVER=192.168.0.32 ${underline}tp-2022-1c-example${nounderline}
 
   " | less -r
   exit
@@ -88,6 +91,7 @@ fi
 LIBRARIES=()
 DEPENDENCIES=()
 PROJECTS=()
+CONFIGURATIONS=()
 
 OPTIONS=("${@:1:$#-1}")
 for i in "${OPTIONS[@]}"
@@ -103,6 +107,10 @@ do
         ;;
         -p=*|--project=*)
           PROJECTS+=("${i#*=}")
+          shift
+        ;;
+        -c=*|--config=*)
+          CONFIGURATIONS+=("${i#*=}")
           shift
         ;;
         *)
@@ -160,6 +168,16 @@ for i in "${PROJECTS[@]}"
 do
   echo -e "\n\n${bold}Building ${i}${normal}\n\n"
   make -C "$REPONAME/$i/$STRUCTURE" "$RULE"
+done
+
+echo -e "\n\n${bold}Replacing variables...${normal}"
+
+for i in "${CONFIGURATIONS[@]}"
+do
+  KEY="${i%=*}"
+  VALUE="${i#*=}"
+  echo -e "\n\nReplacing all ${bold}${KEY:?}${normal} values with ${bold}${VALUE:?}${normal}...\n\n"
+  grep -Rl "^\s*$KEY\s*=" "$REPONAME" | grep -E '\.config|\.cfg' | tee >(xargs -n1 sed -i "s|^\($KEY\s*=\).*|\1$VALUE|") | xargs -n1 echo "Replaced in:"
 done
 
 echo -e "\n\n${bold}Deploy done!${normal}\n\n"
