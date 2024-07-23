@@ -9,7 +9,7 @@ nounderline=$(tput rmul)
 
 fail() {
   echo -e "\n\nTry ${bold}'./deploy.sh --help'${normal} or ${bold}'./deploy.sh -h'${normal} for more information" >&2
-  exit
+  exit 255
 }
 
 if [[ "$*" =~ (^|\ )(-h|-H|--help)($|\ ) ]]; then
@@ -44,7 +44,7 @@ ${bold}EXAMPLE${normal}
       ${bold}./deploy.sh${normal} ${bold}-l${normal}=mumuki/cspec ${bold}-d${normal}=sockets ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2022-1c-example${nounderline}
 
   " | less -r
-  exit
+  exit 1
 fi
 
 TARGET=""
@@ -120,7 +120,7 @@ fi
 
 if [[ $TARGET ]]; then
   echo -e "\n\n${bold}Changing directory:${normal} ${PWD} -> ${bold}$TARGET${normal}"
-  cd "$TARGET" || exit
+  cd "$TARGET" || fail
 fi
 
 echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
