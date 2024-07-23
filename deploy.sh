@@ -126,10 +126,10 @@ fi
 echo -e "\n\n${bold}Checking commons library is installed...${normal}\n\n"
 
 # Refresh dynamic linker cache
-ldconfig
+sudo ldconfig > /dev/null
 
-if ldconfig -p | grep "libcommons.so"; then
-    echo -e "\n\n${bold}Commons library already installed${normal}\n\n"
+if ldconfig -p | grep "libcommons.so" > /dev/null; then
+    echo -e "\n\n${bold}Commons library already installed${normal}"
 else
     echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
 
