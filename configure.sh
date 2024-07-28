@@ -10,7 +10,7 @@ VALOR=${2:?}
 
 echo -e "\nModificando archivos de configuración...\n"
 
-grep -Rl "$CLAVE" \
+grep -Rl "^\s*$CLAVE\s*=" \
   | grep -E '\.config|\.cfg' \
   | tee >(xargs -n1 sed -i "s|^\($CLAVE\s*=\).*|\1$VALOR|")
 

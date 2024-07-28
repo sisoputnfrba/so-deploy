@@ -177,7 +177,7 @@ do
   KEY="${i%=*}"
   VALUE="${i#*=}"
   echo -e "\n\nReplacing all ${bold}${KEY:?}${normal} values with ${bold}${VALUE:?}${normal}...\n\n"
-  grep -Rl "^\s*$KEY\s*=" "$REPONAME" | grep -E '\.config|\.cfg' | tee >(xargs -n1 sed -i "s|^\($KEY\s*=\).*|\1$VALUE|") | xargs -n1 echo "Replaced in:"
+  grep -Rl "^\s*$KEY\s*=" "$REPONAME" | grep -E '\.config|\.cfg' | tee >(xargs -n1 sed -i "s|^\($KEY\s*=\).*|\1$VALUE|")
 done
 
 echo -e "\n\n${bold}Deploy done!${normal}\n\n"
