@@ -123,11 +123,20 @@ if [[ $TARGET ]]; then
   cd "$TARGET" || exit
 fi
 
-echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
+echo -e "\n\n${bold}Checking commons library is installed...${normal}\n\n"
 
-rm -rf "so-commons-library"
-git clone "https://github.com/sisoputnfrba/so-commons-library.git"
-make -C "so-commons-library" uninstall install
+# Refresh dynamic linker cache
+sudo ldconfig > /dev/null
+
+if sudo ldconfig -p | grep "libcommons.so" > /dev/null; then
+    echo -e "\n\n${bold}Commons library already installed${normal}"
+else
+    echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
+
+    rm -rf "so-commons-library"
+    git clone "https://github.com/sisoputnfrba/so-commons-library.git"
+    make -C "so-commons-library" install
+fi
 
 echo -e "\n\n${bold}Cloning external libraries...${normal}"
 
