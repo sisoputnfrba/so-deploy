@@ -120,6 +120,11 @@ do
     esac
 done
 
+CREDENTIALS=""
+if [[ $GITHUB_USER && $GITHUB_TOKEN ]]; then
+  CREDENTIALS="$GITHUB_USER:$GITHUB_TOKEN@"
+fi
+
 REPONAME="$1"
 if [[ $REPONAME != "tp"* ]]; then
   echo -e "\n\n${bold}Invalid repository${normal}: $REPONAME" >&2
@@ -160,7 +165,7 @@ done
 echo -e "\n\n${bold}Cloning project repo...${normal}\n\n"
 
 rm -rf "$REPONAME"
-git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
+git clone "https://${CREDENTIALS}github.com/sisoputnfrba/${REPONAME}.git"
 
 echo -e "\n\n${bold}Building dependencies${normal}..."
 
