@@ -43,7 +43,7 @@ ${bold}COMPATIBILITY${normal}
 ${bold}EXAMPLE${normal}
       ${bold}./deploy.sh${normal} ${bold}-l${normal}=mumuki/cspec ${bold}-d${normal}=sockets ${bold}-p${normal}=kernel ${bold}-p${normal}=memoria ${underline}tp-2022-1c-example${nounderline}
 
-  " | less -r
+  "
   exit 1
 fi
 
@@ -123,11 +123,20 @@ if [[ $TARGET ]]; then
   cd "$TARGET" || fail
 fi
 
-echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
+echo -e "\n\n${bold}Checking commons library is installed...${normal}\n\n"
 
-rm -rf "so-commons-library"
-git clone "https://github.com/sisoputnfrba/so-commons-library.git"
-make -C "so-commons-library" uninstall install
+# Refresh dynamic linker cache
+sudo ldconfig > /dev/null
+
+if sudo ldconfig -p | grep "libcommons.so" > /dev/null; then
+    echo -e "\n\n${bold}Commons library already installed${normal}"
+else
+    echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
+
+    rm -rf "so-commons-library"
+    git clone "https://github.com/sisoputnfrba/so-commons-library.git"
+    make -C "so-commons-library" install
+fi
 
 echo -e "\n\n${bold}Cloning external libraries...${normal}"
 
