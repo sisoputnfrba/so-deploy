@@ -131,20 +131,13 @@ if [[ $TARGET ]]; then
   cd "$TARGET" || fail
 fi
 
-echo -e "\n\n${bold}Checking commons library is installed...${normal}\n\n"
+echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
 
-# Refresh dynamic linker cache
-sudo ldconfig > /dev/null
-
-if sudo ldconfig -p | grep "libcommons.so" > /dev/null; then
-    echo -e "\n\n${bold}Commons library already installed${normal}"
-else
-    echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
-
-    rm -rf "so-commons-library"
-    git clone "https://github.com/sisoputnfrba/so-commons-library.git"
-    make -C "so-commons-library" install
+# clone only if repo not exist locally
+if [ ! -d "so-commons-library" ]; then
+  git clone --recurse-submodules --shallow-submodules --depth 1 --branch master "https://github.com/sisoputnfrba/so-commons-library.git"
 fi
+make -C "so-commons-library" uninstall install
 
 echo -e "\n\n${bold}Cloning external libraries...${normal}"
 
@@ -159,8 +152,9 @@ done
 
 echo -e "\n\n${bold}Cloning project repo...${normal}\n\n"
 
-rm -rf "$REPONAME"
-git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
+if [ ! -d "${REPONAME}" ]; then
+    git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
+fi
 
 echo -e "\n\n${bold}Building dependencies${normal}..."
 
