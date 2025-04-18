@@ -40,6 +40,8 @@ ${bold}OPTIONS${normal}
 
     ${bold}-c | --config${normal}       Replaces a variable in all configuration files containing it. The format is 'key=value'.
 
+    ${bold}-b | --branch${normal}       Sets the branch name to build, by default its main.
+
 ${bold}COMPATIBILITY${normal}
     The repository must be in ${bold}sisoputnfrba${normal} organization and have makefiles to compile each project or dependency.
 
@@ -92,6 +94,7 @@ LIBRARIES=()
 DEPENDENCIES=()
 PROJECTS=()
 CONFIGURATIONS=()
+BRANCH="main"
 
 OPTIONS=("${@:1:$#-1}")
 for i in "${OPTIONS[@]}"
@@ -111,6 +114,10 @@ do
         ;;
         -c=*|--config=*)
           CONFIGURATIONS+=("${i#*=}")
+          shift
+        ;;
+        -b=*|--branch=*)
+          BRANCH=("${i#*=}")
           shift
         ;;
         *)
@@ -161,6 +168,7 @@ echo -e "\n\n${bold}Cloning project repo...${normal}\n\n"
 
 rm -rf "$REPONAME"
 git clone "https://github.com/sisoputnfrba/${REPONAME}.git"
+git -C "$REPONAME" checkout "$BRANCH"
 
 echo -e "\n\n${bold}Building dependencies${normal}..."
 
