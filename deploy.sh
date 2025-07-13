@@ -142,7 +142,7 @@ else
     echo -e "\n\n${bold}Installing commons library...${normal}\n\n"
 
     rm -rf "so-commons-library"
-    git clone --depth=1 "https://github.com/sisoputnfrba/so-commons-library.git"
+    git clone --depth=1 --single-branch "https://github.com/sisoputnfrba/so-commons-library.git"
     make -C "so-commons-library" install
 fi
 
@@ -152,7 +152,7 @@ for i in "${LIBRARIES[@]}"
 do
   echo -e "\n\n${bold}Building ${i}${normal}\n\n"
   rm -rf "${i#*\/}"
-  git clone --depth=1 "https://github.com/${i}.git"
+  git clone --depth=1 --single-branch "https://github.com/${i}.git"
   make -C "${i#*\/}"
   sudo make -C "${i#*\/}" install
 done
@@ -160,7 +160,7 @@ done
 echo -e "\n\n${bold}Cloning project repo...${normal}\n\n"
 
 rm -rf "$REPONAME"
-git clone --depth=1 "https://github.com/sisoputnfrba/${REPONAME}.git"
+git clone --depth=1 --single-branch "https://github.com/sisoputnfrba/${REPONAME}.git"
 
 echo -e "\n\n${bold}Building dependencies${normal}..."
 
